@@ -645,7 +645,7 @@ int linux_get_device_address (struct libusb_context *ctx, int detached,
 {
 	int sysfs_attr;
 
-	usbi_dbg("getting address for device: %s detached: %d", sys_name, detached);
+	usbi_dbg("getting address for device: %s detached: %d dev_node: %s", sys_name, detached, dev_node);
 	/* can't use sysfs to read the bus and device number if the
 	 * device has been detached */
 	if (!sysfs_can_relate_devices || detached || NULL == sys_name) {
@@ -1364,6 +1364,9 @@ static int op_open2(struct libusb_device_handle *handle, int fd) {
 }
 
 static libusb_device* op_device2(struct libusb_context *ctx, const char *dev_node) {
+
+	USBI_GET_CONTEXT(ctx);
+
 	uint8_t busnum, devaddr;
 	unsigned int session_id;
 	if (linux_get_device_address(ctx, 0, &busnum, &devaddr,
@@ -2112,7 +2115,7 @@ static int submit_iso_transfer(struct usbi_transfer *itransfer)
 				r = LIBUSB_ERROR_INVALID_PARAM;
 			} else {
 				usbi_err(TRANSFER_CTX(transfer),
-					"submiturb failed error %d errno=%d", r, errno);
+					"submiturb failed error %d errno=%d errstr=%s", r, errno, strerror(errno));
 				r = LIBUSB_ERROR_IO;
 			}
 
